@@ -32,12 +32,14 @@ class Dish(object):
                 '$%s$' % '$'.join(self.ingredients))
 
     def getIngredients(self):
-        pass
+        return self.ingredients 
 
     def match(self, fact):
-        pass
+        return fact[0].decode('utf-8') == self.category
+        #return cmp(fact, [self.category, self.mainIngredient, self.taste, self.effect]) == 0
 
-    def isMatchedIngredients(self, ingredient):
+    def isMatchedIngredient(self, ingredient):
+        return ingredient in self.ingredients
 
     @staticmethod
     def parse(str_):
@@ -72,6 +74,7 @@ class PickleKnowledgeBase(KnowledgeBase):
         for item in self.content:
             yield item.display()
 
+
 class Sqlite3KnowledgeBase(KnowledgeBase):
     def __init__(self, dbname, tablename):
         self.conn = sqlite3.connect(dbname)
@@ -92,9 +95,6 @@ class Sqlite3KnowledgeBase(KnowledgeBase):
         c.execute("select * from %s" % self.tablename)
         for result in c:
             yield Dish.assemble(result)
-
-    def getItemList(self):
-        pass
 
 if __name__ == '__main__':
     # kb = PickleKnowledgeBase(sys.argv[1])

@@ -1,25 +1,28 @@
+# -*- coding: utf-8 -*-
 import sys
 from dish import KnowledgeBase
 from dish import PickleKnowledgeBase
+from dish import Sqlite3KnowledgeBase
 from dish import Dish
 
 class InferenceEngine(object):
-	def __init__(self, ffname, kbfname):
-		self.base = KnowledgeBase()
-		for line in open(kbfname, 'r'):
-			item = Dish.load(line)
-			self.base.add(item)
-		#define self.facts
+	def __init__(self, dbname):
+		self.base = Sqlite3KnowledgeBase(dbname, 'dishes')
+		self.fact = []
+		self.fact.append(raw_input('Input the category: '))
+		self.fact.append(raw_input('Input the main ingredient: '))
+		self.fact.append(raw_input('Input the taste: '))
+		self.fact.append(raw_input('Input the effect: '))
 
 	def Initialize(self):
 		self.dishList = []
-		rawList = self.base.GetList()
+		rawList = self.base.list()
 		for dish in rawList:
 			if dish.match(self.fact):
 				self.dishList.append(dish)
 		S = set()
 		for dish in self.dishList:
-			L = dish.GetIngredients()
+			L = dish.getIngredients()
 			S = S | set(L)
 		self.IngredientsList = [i for i in S]
 
@@ -28,20 +31,20 @@ class InferenceEngine(object):
 		for ingredient in self.IngredientsList:
 			cnt = 0
 			for dish in self.dishList:
-				if dish.matchIngredient(ingredient):
+				if dish.isMatchedIngredient(ingredient):
 					cnt += 1
 			if cnt < minimal:
 				condition = ingredient
 				minimal = cnt
-		if minimal == dishList.size:
+		if minimal == len(self.dishList):
 			return ''
 		else:
 			return condition
 
-	def CutByCondition(self, condition):
+	def CutByCondition(self, condition, yn):
 		newList = []
-		for dish in dishList:
-			if dish.matchIngredient(condition):
+		for dish in self.dishList:
+			if yn == dish.isMatchedIngredient(condition):
 				newList.append(dish)
 		return newList
 
@@ -50,13 +53,15 @@ class InferenceEngine(object):
 
 	def Do(self):
 		while True:
-			condition = FindMostOptimal()
+			condition = self.FindMostOptimal()
 			if not self.LegalCondition(condition):
-				print self.S
+				for dish in self.dishList:
+					dish.display()
 				break
-			self.S = self.CutByCondition(condition);	
+			T = raw_input('你要吃 %s 吗？ '.decode('utf-8')%(condition.decode('utf-8')))
+			self.dishList = self.CutByCondition(condition, T == 'YES');	
 
 if __name__ == '__main__':
-	ie = InferenceEngine(sys.argv[1], sys.argv[2])
+	ie = InferenceEngine(sys.argv[1])
 	ie.Initialize()
 	ie.Do()
