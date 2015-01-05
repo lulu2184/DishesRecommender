@@ -35,8 +35,10 @@ class Dish(object):
         return self.ingredients 
 
     def match(self, fact):
-        return fact[0].decode('utf-8') == self.category
-        #return cmp(fact, [self.category, self.mainIngredient, self.taste, self.effect]) == 0
+        return (    (fact[0].decode('utf-8') == self.category or fact[0] == 'NULL')
+               and  (fact[1].decode('utf-8') == self.mainIngredient or fact[1] == 'NULL')
+               and  (fact[2].decode('utf-8') == self.taste or fact[2] == 'NULL') 
+               and  (fact[3].decode('utf-8') == self.effect or fact[3] == 'NULL'))
 
     def isMatchedIngredient(self, ingredient):
         return ingredient in self.ingredients

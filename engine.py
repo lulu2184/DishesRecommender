@@ -28,15 +28,16 @@ class InferenceEngine(object):
 
 	def FindMostOptimal(self):
 		minimal = 0xfffffff
+		n = len(self.dishList)
 		for ingredient in self.IngredientsList:
 			cnt = 0
 			for dish in self.dishList:
 				if dish.isMatchedIngredient(ingredient):
 					cnt += 1
-			if cnt < minimal:
+			if max(cnt, n - cnt) < minimal:
 				condition = ingredient
-				minimal = cnt
-		if minimal == len(self.dishList):
+				minimal = max(cnt, n - cnt)
+		if minimal == n:
 			return ''
 		else:
 			return condition
@@ -56,9 +57,9 @@ class InferenceEngine(object):
 			condition = self.FindMostOptimal()
 			if not self.LegalCondition(condition):
 				for dish in self.dishList:
-					dish.display()
+					print dish.display()
 				break
-			T = raw_input('你要吃 %s 吗？ '.decode('utf-8')%(condition.decode('utf-8')))
+			T = raw_input(u'你要吃 {0} 吗？ '.encode('utf-8').format(condition.encode('utf-8')))
 			self.dishList = self.CutByCondition(condition, T == 'YES');	
 
 if __name__ == '__main__':
